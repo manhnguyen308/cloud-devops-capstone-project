@@ -1,4 +1,4 @@
-- name: "Deploy app to local kubernetes cluster"
+- name: "Deploy app to EC2 kubernetes cluster"
   hosts: cluster
   remote_user: ec2-user
   gather_facts: false
@@ -11,7 +11,7 @@
       args:
         chdir: $HOME
   
-    - name: Run kubernetes in local
+    - name: Start kubernetes
       shell: minikube start --driver=docker --force
       args:
         chdir: $HOME
@@ -22,11 +22,11 @@
         chdir: $HOME
 
     - name: Waiting for pod to be ready
-      shell: sleep 500
+      shell: sleep 300
       args:
         chdir: $HOME
     
     - name: Forward the container port to a host
-      shell: kubectl port-forward deployment.apps/capstone-project 8000:80
+      shell: kubectl port-forward deployment.apps/capstone-project 8000:80 &
       args:
         chdir: $HOME

@@ -64,6 +64,15 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Create Network
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/server/network.yml \
+              --tags project=udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7} \
+              --stack-name "udacity-capstone-eks-network-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides file://.circleci/server/network-params.json
+      - run:
           name: Create Kubernetes Cluster
           command: |
             aws cloudformation deploy \
@@ -132,7 +141,7 @@ jobs:
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-app.yml
-          no_output_timeout: 10m
+          no_output_timeout: 15m
 
 workflows:
   default:
