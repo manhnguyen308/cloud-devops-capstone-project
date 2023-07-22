@@ -150,7 +150,7 @@ workflows:
               only: [ main ]
       - configure-cluster:
           requires:
-            - configure-infrastructure
+            - deploy-infrastructure
             - upload-docker
       - deploy-docker:
           requires:
