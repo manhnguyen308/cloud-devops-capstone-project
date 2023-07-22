@@ -34,12 +34,6 @@
   shell: yum install docker -y
   args:
     chdir: $HOME
-
-- name: "Add ec2-user into docker group"
-  become: yes
-  shell: sudo usermod -a -G docker ec2-user && newgrp docker
-  args:
-    chdir: $HOME
     
 - name: "Enable docker service"
   become: yes
@@ -47,7 +41,7 @@
   args:
     chdir: $HOME
 
-- name: Download  Minikube binary
+- name: Download Minikube binary
   become: yes
   shell: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
   
