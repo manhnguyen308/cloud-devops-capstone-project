@@ -1,47 +1,47 @@
 ---
-- name: "Download kubectl"
+- name: Download kubectl
   become: yes
   shell: curl -LO https://dl.k8s.io/release/v1.27.3/bin/linux/amd64/kubectl
   args:
     chdir: $HOME
 
-- name: "Apply Execute permission"
+- name: Apply Execute permission to kubectl
   become: yes
   shell: chmod +x ./kubectl
   args:
     chdir: $HOME
 
-- name: "Copy kubectl to $HOME"
+- name: Copy kubectl to $HOME
   become: yes
   shell: install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
   args:
     chdir: $HOME
 
-- name: "Add path to shell file"
+- name: Add path to shell file
   become: yes
   shell: echo 'export PATH=$PATH:/usr/local/bin' >> .bashrc
   args:
     chdir: $HOME
     
-- name: "Update yum library"
+- name: Update yum library
   become: yes
   shell: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
   args:
     chdir: $HOME
 
-- name: "Install docker"
+- name: Install docker
   become: yes
   shell: yum install docker -y
   args:
     chdir: $HOME
     
-- name: "Enable docker service"
+- name: Enable docker service
   become: yes
   shell: systemctl enable docker.service
   args:
     chdir: $HOME
     
-- name: "Add ec2-user into docker group"
+- name: Add ec2-user into docker group
   become: yes
   shell: usermod -aG docker ec2-user
   args:
