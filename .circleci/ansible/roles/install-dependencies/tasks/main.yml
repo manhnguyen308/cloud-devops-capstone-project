@@ -50,9 +50,13 @@
     - apt-transport-https
     - virtualbox
 
-- name: Download and install Minikube binary
+- name: Download  Minikube binary
   become: yes
-  shell: curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+  shell: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+  
+- name: Install Minikube binary
+  become: yes
+  shell: sudo install minikube-linux-amd64 /usr/local/bin/minikube
 
 - name: Verify Minikube installation
   become: yes
