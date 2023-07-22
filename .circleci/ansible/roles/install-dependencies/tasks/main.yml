@@ -40,6 +40,12 @@
   shell: systemctl enable docker.service
   args:
     chdir: $HOME
+    
+- name: "Add ec2-user into docker group"
+  become: yes
+  shell: usermod -aG docker ec2-user
+  args:
+    chdir: $HOME
 
 - name: Download Minikube binary
   become: yes
