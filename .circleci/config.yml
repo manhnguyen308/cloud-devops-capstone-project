@@ -1,0 +1,140 @@
+version: 2.1
+
+jobs:
+  build-code:
+    docker:
+      - image: python:3.7.3-stretch
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+            - v1-dependencies-
+
+      # run build
+      - run:
+          name: install dependencies
+          command: |
+            make setup
+            make install
+
+      # run lint
+      - run:
+          name: run lint
+          command: |
+            make setup
+            make lint
+
+      - save_cache:
+          paths:
+            - ~/.devops
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+  upload-docker:
+    docker:
+      - image: circleci/golang:1.15
+
+    working_directory: ~/project
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          version: 19.03.13
+
+      - run:
+          name: Build docker container
+          command: |
+            docker build --tag=$DOCKER_IMAGE .
+            docker image ls
+
+      - run:
+          name: Upload Docker to Dockerhub
+          command: |
+            echo "Docker ID and Image: $DOCKER_IMAGE"
+            docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+            docker tag $DOCKER_IMAGE $DOCKER_USERNAME/$DOCKER_IMAGE
+            docker push $DOCKER_USERNAME/$DOCKER_IMAGE
+
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Create Kubernetes Cluster
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/server/cluster.yml \
+              --tags project=udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7} \
+              --stack-name "udacity-capstone-cluster-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides file://.circleci/server/cluster-params.json \
+              --capabilities CAPABILITY_NAMED_IAM
+          no_output_timeout: 10m
+      - run:
+          name: Install tar
+          command: |
+            yum install -y tar gzip
+      - run:
+          name: Add cluster IP to ansible inventory
+          command: |
+            echo [server] > .circleci/ansible/inventory.txt
+            aws ec2 describe-instances \
+              --region "${AWS_DEFAULT_REGION}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=capstone-project-cluster*" \
+              --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+            
+  configure-cluster:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["a8:5f:7c:dc:5d:93:fa:43:81:c0:21:44:3f:34:01:3a"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-cluster.yml
+
+  deploy-docker:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["a8:5f:7c:dc:5d:93:fa:43:81:c0:21:44:3f:34:01:3a"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+      - run:
+          name: Deploy Docker Image
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-app.yml
+          no_output_timeout: 2m
+
+workflows:
+  default:
+    jobs:
+      - build-code
