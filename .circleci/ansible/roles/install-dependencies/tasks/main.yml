@@ -43,13 +43,12 @@
     
 - name: Install dependencies for Minikube
   become: yes
-    apt:
-      name: "{{ item }}"
-      state: present
-    with_items:
-      - curl
-      - apt-transport-https
-      - virtualbox
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - apt-transport-https
+    - virtualbox
 
 - name: Download and install Minikube binary
   become: yes
