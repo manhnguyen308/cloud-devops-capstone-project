@@ -26,7 +26,7 @@ Resources:
           ToPort: 8000
           CidrIp: 0.0.0.0/0
 
-  cluster:
+  KubernetesEC2Cluster:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t3.small

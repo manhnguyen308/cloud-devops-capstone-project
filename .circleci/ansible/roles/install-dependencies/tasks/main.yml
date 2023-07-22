@@ -22,12 +22,6 @@
   shell: echo 'export PATH=$PATH:/usr/local/bin' >> .bashrc
   args:
     chdir: $HOME
-    
-- name: Update yum library
-  become: yes
-  shell: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-  args:
-    chdir: $HOME
 
 - name: Install docker
   become: yes
