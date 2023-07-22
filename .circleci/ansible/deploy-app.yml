@@ -12,7 +12,7 @@
         chdir: $HOME
   
     - name: Run kubernetes in local
-      shell: "minikube start"
+      shell: "minikube start --driver=docker --force"
       args:
         chdir: $HOME
   
