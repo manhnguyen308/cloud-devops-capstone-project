@@ -81,7 +81,7 @@ jobs:
       - run:
           name: Add cluster IP to ansible inventory
           command: |
-            echo [server] > .circleci/ansible/inventory.txt
+            echo [cluster] > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
               --region "${AWS_DEFAULT_REGION}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \

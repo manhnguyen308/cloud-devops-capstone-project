@@ -1,7 +1,7 @@
 ---
-- name: "Server configuration"
-  hosts: server
-  user: ec2-user
+- name: "Cluster configuration"
+  hosts: cluster
+  remote_user: ec2-user
   gather_facts: false
   become: yes
   become_method: sudo
