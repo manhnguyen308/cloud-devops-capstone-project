@@ -47,7 +47,7 @@
   
 - name: Install Minikube binary
   become: yes
-  shell: sudo install minikube-linux-amd64 /usr/local/bin/minikube
+  shell: install minikube-linux-amd64 /usr/local/bin/minikube
 
 - name: Verify Minikube installation
   become: yes

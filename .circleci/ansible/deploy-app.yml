@@ -1,4 +1,5 @@
 - name: "Deploy app to kubernetes"
+  hosts: cluster
   remote_user: ec2-user
   gather_facts: false
   vars:
