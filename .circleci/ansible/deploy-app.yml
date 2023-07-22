@@ -1,0 +1,29 @@
+- name: "Deploy app to kubernetes"
+  hosts: server
+  user: ubuntu
+  gather_facts: false
+  become: yes
+  become_method: sudo
+  become_user: root
+  vars:
+    CIRCLE_WORKFLOW_ID: "{{ lookup('env', 'CIRCLE_WORKFLOW_ID') }}"
+  tasks:
+    - name: Run kubernetes in local
+      shell: "minikube start"
+      args:
+        chdir: $HOME
+  
+    - name: Run the Docker Hub container with kubernetes
+      shell: "kubectl create deploy capstone-project --image=docker.io/manhnguyen308/capstone-project:latest"
+      args:
+        chdir: $HOME
+
+    - name: List kubernetes pods
+      shell: "kubectl get pods"
+      args:
+        chdir: $HOME
+    
+    - name: Forward the container port to a host
+      shell: "kubectl port-forward deployment.apps/capstone-project 8000:80"
+      args:
+        chdir: $HOME

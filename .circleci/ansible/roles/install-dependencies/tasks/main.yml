@@ -1,0 +1,60 @@
+---
+- name: "Download AWS CLI package"
+  become: yes
+  shell: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  args:
+    chdir: $HOME
+
+- name: "Extract AWS CLI Package"
+  become: yes
+  shell: unzip awscliv2.zip
+  args:
+    chdir: $HOME
+
+- name: "Install AWS CLI"
+  become: yes
+  shell: ./aws/install
+  args:
+    chdir: $HOME
+
+- name: "Download kubectl"
+  become: yes
+  shell: curl -LO https://dl.k8s.io/release/v1.27.3/bin/linux/amd64/kubectl
+  args:
+    chdir: $HOME
+
+- name: "Apply Execute permission"
+  become: yes
+  shell: chmod +x ./kubectl
+  args:
+    chdir: $HOME
+
+- name: "Copy kubectl to $HOME"
+  become: yes
+  shell: install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  args:
+    chdir: $HOME
+
+- name: "Add path to shell file"
+  become: yes
+  shell: echo 'export PATH=$PATH:/usr/local/bin' >> .bashrc
+  args:
+    chdir: $HOME
+    
+- name: Install dependencies for Minikube
+  become: yes
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - curl
+      - apt-transport-https
+      - virtualbox
+
+- name: Download and install Minikube binary
+  become: yes
+  shell: curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+
+- name: Verify Minikube installation
+  become: yes
+  command: minikube version

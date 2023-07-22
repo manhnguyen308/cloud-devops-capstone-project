@@ -138,3 +138,20 @@ workflows:
   default:
     jobs:
       - build-code
+      - upload-docker:
+          requires:
+            - build-code
+          filters:
+            branches:
+              only: [ main ]
+      - deploy-infrastructure:
+          filters:
+            branches:
+              only: [ main ]
+      - configure-cluster:
+          requires:
+            - configure-infrastructure
+            - upload-docker
+      - deploy-docker:
+          requires:
+            - configure-cluster
