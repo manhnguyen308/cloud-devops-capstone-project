@@ -27,6 +27,6 @@
         chdir: $HOME
     
     - name: Forward the container port to a host
-      shell: kubectl port-forward deployment.apps/capstone-project 8000:80 &
+      shell: kubectl port-forward deployment.apps/capstone-project 8000:80 --address='0.0.0.0' &
       args:
         chdir: $HOME
