@@ -15,27 +15,18 @@
       shell: minikube start --driver=docker --force
       args:
         chdir: $HOME
-      debug: var=ps.stdout_lines
   
     - name: Run the Docker Hub container with kubernetes
       shell: kubectl create deploy capstone-project --image=docker.io/manhnguyen308/capstone-project:latest
       args:
         chdir: $HOME
-      debug: var=ps.stdout_lines
 
     - name: Waiting for pod to be ready
       shell: sleep 180
       args:
         chdir: $HOME
-        
-    - name: List out all pods
-      shell: kubectl get pod
-      args:
-        chdir: $HOME
-      debug: var=ps.stdout_lines
     
     - name: Forward the container port to a host
       shell: nohup kubectl port-forward deployment.apps/capstone-project 8000:80 --address='0.0.0.0' &
       args:
         chdir: $HOME
-      debug: var=ps.stdout_lines
