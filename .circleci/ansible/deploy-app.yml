@@ -22,7 +22,7 @@
         chdir: $HOME
 
     - name: Waiting for pod to be ready
-      shell: sleep 300
+      shell: sleep 180
       args:
         chdir: $HOME
     
